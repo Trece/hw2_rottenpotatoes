@@ -7,7 +7,15 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @movies = Movie.all
+    @all_ratings = Movie.all_ratings
+    @range = @all_ratings 
+    if params['commit'] then
+      @range = @all_ratings.select {|rating| rating if params['rating'][rating.to_sym]}
+    end
+    if params['c_rating'] then
+      @range = params['c_rating']
+    end
+    @movies = Movie.where :rating => @range
     @flag = params[:sort_by]
     if @flag == 'title' then
       @movies = @movies.sort_by {|movie| movie.title}
