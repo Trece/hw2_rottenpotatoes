@@ -9,19 +9,19 @@ class MoviesController < ApplicationController
   def index
     @all_ratings = Movie.all_ratings
     @range = @all_ratings 
-    if params['commit'] then
-      @range = @all_ratings.select {|rating| rating if params['rating'][rating.to_sym]}
-    end
-    if params['c_rating'] then
-      @range = params['c_rating']
+    ratings = if params['rating'] then params['rating'] else session['rating'] end
+    @flag = if params['sort_by'] then params['sort_by'] else session['sort_by'] end
+    if ratings then
+      @range = @all_ratings.select {|rating| rating if ratings[rating]}
     end
     @movies = Movie.where :rating => @range
-    @flag = params[:sort_by]
     if @flag == 'title' then
       @movies = @movies.sort_by {|movie| movie.title}
     elsif @flag == 'date' then
       @movies = @movies.sort_by {|movie| movie.release_date} 
     end
+    session['sort_by'] = @flag
+    session['rating'] = ratings
   end
 
   def new
